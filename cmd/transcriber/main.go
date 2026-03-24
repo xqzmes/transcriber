@@ -5,25 +5,31 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"transcriber/internal/tgBot"
+	"transcriber/internal/telegramHandlers"
 
 	"github.com/go-telegram/bot"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	params := []bot.Option{
-		bot.WithDefaultHandler(tgBot.EchoHandler),
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatal("Error loading .env file")
 	}
-
 	token := os.Getenv("BOT_TOKEN")
 
-	b, err := bot.New(token, params...)
+	opts := []bot.Option{
+		bot.WithDefaultHandler(telegramHandlers.EchoHandler),
+	}
+
+	b, err := bot.New(token, opts...)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	b.RegisterHandler(bot.HandlerTypeMessageText, "/start", bot.MatchTypeExact, telegramHandlers.StartHandler)
 
 	b.Start(ctx)
 }
