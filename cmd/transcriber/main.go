@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"transcriber/internal/telegramHandlers"
+	"transcriber/internal/telegram"
 
 	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
@@ -21,7 +21,8 @@ func main() {
 	token := os.Getenv("BOT_TOKEN")
 
 	opts := []bot.Option{
-		bot.WithDefaultHandler(telegramHandlers.EchoHandler),
+		bot.WithDefaultHandler(telegram.TextMessageHandler),
+		bot.WithCallbackQueryDataHandler("btn_", bot.MatchTypePrefix, telegram.VoiceProcessorHandler),
 	}
 
 	b, err := bot.New(token, opts...)
@@ -29,7 +30,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	b.RegisterHandler(bot.HandlerTypeMessageText, "/start", bot.MatchTypeExact, telegramHandlers.StartHandler)
+	b.RegisterHandlerMatchFunc(telegram.MatchVoice, telegram.VoiceMessageHandler)
+	b.RegisterHandler(bot.HandlerTypeMessageText, "/start", bot.MatchTypeExact, telegram.StartHandler)
 
 	b.Start(ctx)
 }

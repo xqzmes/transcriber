@@ -1,4 +1,4 @@
-package requestsAI
+package transcriber
 
 import (
 	"context"

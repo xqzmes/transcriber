@@ -1,4 +1,4 @@
-package convertAudio
+package converter
 
 import "os/exec"
 
